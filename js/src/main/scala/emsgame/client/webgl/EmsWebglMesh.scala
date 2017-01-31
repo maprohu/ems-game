@@ -128,11 +128,8 @@ class EmsWebglMesh(
         |    attribute vec3 aVertexPosition;
         |    attribute vec4 aVertexColor;
         |
-        |    uniform mat4 uMVMatrix;
-        |    uniform mat4 uPMatrix;
-        |
         |    void main(void) {
-        |        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        |        gl_Position = vec4(aVertexPosition, 1.0);
         |    }
       """.stripMargin
     )
@@ -151,13 +148,13 @@ class EmsWebglMesh(
 
   }
 
-  val pMatrixUniform = {
-    gl.getUniformLocation(shaderProgram, "uPMatrix")
-  }
-
-  val mvMatrixUniform = {
-    gl.getUniformLocation(shaderProgram, "uMVMatrix")
-  }
+//  val pMatrixUniform = {
+//    gl.getUniformLocation(shaderProgram, "uPMatrix")
+//  }
+//
+//  val mvMatrixUniform = {
+//    gl.getUniformLocation(shaderProgram, "uMVMatrix")
+//  }
 
   val vertexPositionAttribute = {
     val vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition")
@@ -199,10 +196,6 @@ class EmsWebglMesh(
       1000f
     )
 
-    gl.uniformMatrix4fv(
-      pMatrixUniform,
-
-    )
 
     import WebGLRenderingContext._
     gl.clearColor(0, 0, 0, 1)

@@ -1,5 +1,6 @@
 package emsgame.client
 
+import emsgame.client.globe.Tesselation
 import emsgame.client.layout.MainLayout
 import emsgame.client.webgl.{EmsWebgl, EmsWebglLines, EmsWebglMesh}
 import org.scalajs.dom
@@ -17,7 +18,14 @@ object EmsGameApp extends JSApp {
   override def main(): Unit = {
     val canvas = MainLayout.setup()
 
-    val webgl = new EmsWebglMesh(canvas, Icosahedron.mesh)
+    val webgl = new EmsWebglMesh(
+      canvas,
+      Tesselation.tesselate(
+        Tesselation.tesselate(
+          Icosahedron.mesh
+        )
+      )
+    )
 
     dom
       .window
