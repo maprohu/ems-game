@@ -44,8 +44,8 @@ object MainLayout {
 
     val cnv =
       canvas(
-        width := 100.pct,
-        height := 100.pct,
+        width := "100vw",
+        height := "100vh",
         margin := 0.px
       ).render
 
