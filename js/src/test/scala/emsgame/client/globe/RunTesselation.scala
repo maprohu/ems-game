@@ -1,6 +1,7 @@
 package emsgame.client.globe
 
-import emsgame.client.globe.Tesselation.{Face, Mesh}
+import emsgame.geom.Tesselation
+import emsgame.geom.Tesselation.{Face, Mesh}
 import voxels.Icosahedron
 import voxels.geometry.Vec3
 

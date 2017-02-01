@@ -1,15 +1,18 @@
 package emsgame.client.webgl
 
-import emsgame.client.globe.Tesselation.Mesh
+import emsgame.client.globe.{Globe, Painter, Projection, Zooming}
+import emsgame.geom.Tesselation.Mesh
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.WebGLRenderingContext._
 import org.scalajs.dom.raw.{WebGLRenderingContext, WebGLShader}
-import subspace.Matrix4x4
+import rx.{Ctx, Rx, Var}
+import sjstools.RxTools
+import subspace.{Matrix4x4, Orientation, Quaternion, Vector3}
 
-import scala.scalajs.js
 import scala.scalajs.js.typedarray.{Float32Array, Uint16Array}
 import scala.scalajs.js.JSConverters._
+import scala.scalajs.js.typedarray.TypedArrayBufferOps._
 
 /**
   * Created by pappmar on 31/01/2017.
@@ -17,12 +20,116 @@ import scala.scalajs.js.JSConverters._
 class EmsWebglMesh(
   canvas: Canvas,
   mesh: Mesh
-) {
+)(implicit
+  ctx: Ctx.Owner
+) extends Painter {
 
   val gl =
     canvas
       .getContext("webgl")
       .asInstanceOf[WebGLRenderingContext]
+
+  val rotateY = Var(0.0)
+  val rotateX = Var(0.0)
+  val zoomDistance = Var(1.0)
+  val canvasSize = Var((canvas.width, canvas.height))
+
+  val radPerPixel = Rx {
+    val cs = canvasSize()
+    val d = zoomDistance()
+    val (_, height) = cs
+
+    (d * Projection.TanFovHalf) / (height / 2.0)
+  }
+
+  val mvMatrixTypedBuffer = {
+    val mvMatrixBuffer = Matrix4x4.identity.allocateBuffer
+    val mvMatrixTypedBuffer = mvMatrixBuffer.typedArray()
+    val mvMatrix = RxTools.holder(
+      {
+        val mRotY =
+          Matrix4x4.forRotation(
+            Quaternion.forAxisAngle(
+              Orientation.y,
+              rotateY.now.toFloat
+            )
+          )
+
+        val mRotX =
+          Matrix4x4.forRotation(
+            Quaternion.forAxisAngle(
+              Orientation.x,
+              rotateX.now.toFloat
+            )
+          )
+
+        val mTrans =
+          Matrix4x4
+            .forTranslation(
+              Vector3(0, 0, -(Globe.Radius + zoomDistance.now).toFloat)
+            )
+
+        (mTrans * mRotX * mRotY)
+          .updateBuffer(
+            mvMatrixBuffer
+          )
+
+        gl.uniformMatrix4fv(
+          mvMatrixUniform,
+          false,
+          mvMatrixTypedBuffer
+        )
+      },
+      zoomDistance,
+      rotateY,
+      rotateX
+    )
+
+    { () =>
+      mvMatrix.get
+    }
+  }
+
+  val pMatrixTypedBuffer = {
+    val mvMatrixBuffer = Matrix4x4.identity.allocateBuffer
+    val mvMatrixTypedBuffer = mvMatrixBuffer.typedArray()
+    val mvMatrix = RxTools.holder(
+      {
+        val (width, height) = canvasSize.now
+
+        gl.viewport(
+          0,
+          0,
+          width,
+          height
+        )
+
+        val pMatrix = Matrix4x4.forPerspective(
+          Projection.FieldOfView,
+          width.toFloat / height,
+          Zooming.MinDistance.toFloat / 2,
+          100f
+        )
+
+        pMatrix
+          .updateBuffer(
+            mvMatrixBuffer
+          )
+
+        gl.uniformMatrix4fv(
+          pMatrixUniform,
+          false,
+          mvMatrixTypedBuffer
+        )
+      },
+      canvasSize
+    )
+
+    { () =>
+      mvMatrix.get
+    }
+  }
+
 
   val triangleVertexPositionBuffer = {
     val triangleVertexPositionBuffer = gl.createBuffer()
@@ -128,8 +235,11 @@ class EmsWebglMesh(
         |    attribute vec3 aVertexPosition;
         |    attribute vec4 aVertexColor;
         |
+        |    uniform mat4 uMVMatrix;
+        |    uniform mat4 uPMatrix;
+        |
         |    void main(void) {
-        |        gl_Position = vec4(aVertexPosition, 1.0);
+        |        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         |    }
       """.stripMargin
     )
@@ -148,13 +258,13 @@ class EmsWebglMesh(
 
   }
 
-//  val pMatrixUniform = {
-//    gl.getUniformLocation(shaderProgram, "uPMatrix")
-//  }
-//
-//  val mvMatrixUniform = {
-//    gl.getUniformLocation(shaderProgram, "uMVMatrix")
-//  }
+  val pMatrixUniform = {
+    gl.getUniformLocation(shaderProgram, "uPMatrix")
+  }
+
+  val mvMatrixUniform = {
+    gl.getUniformLocation(shaderProgram, "uMVMatrix")
+  }
 
   val vertexPositionAttribute = {
     val vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition")
@@ -176,26 +286,15 @@ class EmsWebglMesh(
 
     vertexPositionAttribute
   }
-  
+
+
+  override def paint(): Unit = {
+    drawScene()
+  }
+
   def drawScene() = {
-    val vpWidth =
-      gl.canvas.width
-    val vpHeight =
-      gl.canvas.height
-    gl.viewport(
-      0,
-      0,
-      vpWidth,
-      vpHeight
-    )
-
-    val pMatrix = Matrix4x4.forPerspective(
-      scala.math.Pi.toFloat/3f,
-      vpWidth.toFloat / vpHeight,
-      0.001f,
-      1000f
-    )
-
+    pMatrixTypedBuffer()
+    mvMatrixTypedBuffer()
 
     import WebGLRenderingContext._
     gl.clearColor(0, 0, 0, 1)
@@ -213,18 +312,6 @@ class EmsWebglMesh(
   }
 
 
-  def setSize() = {
-    val width = canvas.clientWidth;
-    val height = canvas.clientHeight;
-    if (canvas.width != width ||
-      canvas.height != height) {
-
-      canvas.asInstanceOf[js.Dynamic].width = width;
-      canvas.asInstanceOf[js.Dynamic].height = height;
-
-      drawScene()
-    }
-  }
 
 
 

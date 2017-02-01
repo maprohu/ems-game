@@ -40,4 +40,16 @@ case class Vec3( x: Double, y: Double, z: Double) {
 
   def negate: Vec3 = Vec3( -x, -y, -z )
 
+  /**
+    * assumes that vector is normalized
+    * @return
+    */
+  def elevation1 = {
+    math.asin(y)
+  }
+
+  def azimuth = {
+    math.atan2(z, x)
+  }
+
 }
