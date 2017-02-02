@@ -23,11 +23,9 @@ object EmsGameApp extends JSApp {
 
     val painter = new EmsWebglMesh(
       canvas,
-//      Icosahedron.mesh
       Tesselation.tesselate(
-        Tesselation.tesselate(
-          Icosahedron.mesh
-        )
+        Icosahedron.mesh,
+        3
       )
     )
 

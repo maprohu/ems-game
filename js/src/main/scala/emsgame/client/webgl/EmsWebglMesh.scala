@@ -104,6 +104,12 @@ class EmsWebglMesh(
           height
         )
 
+//        val pMatrix = Matrix4x4.forPerspective(
+//          Projection.FieldOfView,
+//          width.toFloat / height,
+//          Zooming.MinDistance.toFloat / 2,
+//          100f
+//        )
         val pMatrix = Matrix4x4.forPerspective(
           Projection.FieldOfView,
           width.toFloat / height,

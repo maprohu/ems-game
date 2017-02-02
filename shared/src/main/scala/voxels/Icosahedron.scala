@@ -9,6 +9,21 @@ import voxels.geometry.Geometry.gold
  */
 object Icosahedron {
 
+  val NorthPoleIndex = 0
+  val SouthPoleIndex = 6
+
+  def isPolarIndex(idx: Int) = idx == NorthPoleIndex || idx == SouthPoleIndex
+
+  def excludeCap(mesh: Mesh) : Mesh = {
+    mesh.copy(
+      faces =
+        mesh
+          .faces
+          .filterNot(f => isPolarIndex(f.v0) || isPolarIndex(f.v1) || isPolarIndex(f.v2))
+    )
+  }
+
+
   val vertices = {
     val lat = math.atan(0.5)
     val sinLat = math.sin(lat)

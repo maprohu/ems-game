@@ -25,10 +25,11 @@ object RunLandPolygons {
   }
 
 
-
 }
 
 object GeoData {
+
+
   def loadFromFile(file : File) = {
 
     val dataStore =
@@ -50,6 +51,11 @@ object GeoData {
 
 
   }
+
+
+  // (LON, LAT)
+  // lon: -180 -> 180
+  // lat: -90 -> 90
 
   lazy val land = {
     loadFromFile(

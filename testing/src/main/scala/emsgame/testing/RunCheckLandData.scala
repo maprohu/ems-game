@@ -37,3 +37,63 @@ object RunCheckLandData {
   }
 
 }
+
+object RunLandMinMaxLon {
+
+  def main(args: Array[String]): Unit = {
+
+
+//    val (min, max) =
+//      GeoData
+//        .land
+//        .getFeatures
+//        .features()
+//        .asScala
+//        .map({ f =>
+//          f
+//            .getDefaultGeometry
+//            .asInstanceOf[MultiPolygon]
+//        })
+//        .flatMap(_.polygons)
+//        .map(_.getBoundary)
+
+
+
+  }
+
+}
+
+object RunDumpLand {
+  def main(args: Array[String]): Unit = {
+
+    val limits =
+      GeoData
+        .water
+        .getFeatures
+        .features()
+        .asScala
+        .flatMap({ f =>
+          f
+            .getDefaultGeometry
+            .asInstanceOf[MultiPolygon]
+            .polygons
+        })
+        .flatMap({ p =>
+          p
+            .getCoordinates
+            .map(c => (c.x, c.y))
+        })
+        .foldLeft((Double.MaxValue, Double.MinValue, Double.MaxValue, Double.MinValue))({ (acc, elem) =>
+          val (x, y) = elem
+          val (minx, maxx, miny, maxy) = acc
+          (
+            math.min(minx, x),
+            math.max(maxx, x),
+            math.min(miny, y),
+            math.max(maxy, y)
+          )
+        })
+
+    println(limits)
+  }
+}

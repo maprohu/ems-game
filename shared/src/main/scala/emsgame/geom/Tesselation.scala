@@ -2,6 +2,85 @@ package emsgame.geom
 
 import voxels.geometry.Vec3
 
+object Geo {
+
+  case class Bounds(
+    min: Coords,
+    max: Coords
+  )
+
+  case class Coords(
+    lon: Double,
+    lat: Double
+  )
+
+  case class Poly(
+    coords: Iterable[Coords]
+  ) {
+    val normals = {
+      val needsSplit =
+        coords
+          .scanLeft((180.0, -180.0))({ (acc, elem) =>
+            val (min, max) = acc
+            (
+              math.min(min, elem.lon),
+              math.max(max, elem.lon)
+            )
+          })
+          .exists({
+            case (min, max) =>
+              max - min > 180
+          })
+
+      if (needsSplit) {
+
+        Iterable(
+          coords
+            .map({ c =>
+              if (c.lon < 0) c.copy(c.lon + 360)
+              else c
+            }),
+          coords
+            .map({ c =>
+              if (c.lon > 0) c.copy(c.lon - 360)
+              else c
+            })
+        )
+
+      } else {
+        Iterable(coords)
+      }
+
+
+
+    }
+  }
+
+  def bounds(coords: Iterable[Coords]) = {
+    coords
+      .foldLeft(
+        Bounds(
+          min = Coords(Double.MaxValue, Double.MaxValue),
+          max = Coords(Double.MinValue, Double.MinValue)
+        )
+      )({ (acc, elem) =>
+        Bounds(
+          min = Coords(
+            lat = math.min(elem.lat, acc.min.lat),
+            lon = math.min(elem.lon, acc.min.lon)
+          ),
+          max = Coords(
+            lat = math.max(elem.lat, acc.min.lat),
+            lon = math.max(elem.lon, acc.min.lon)
+          )
+        )
+      })
+  }
+
+
+
+
+}
 
 object Tesselation {
   type Vertex = Vec3
@@ -9,7 +88,9 @@ object Tesselation {
     v0: Int,
     v1: Int,
     v2: Int
-  )
+  ) {
+    lazy val indices = Vector(v0, v1, v2)
+  }
 
   case class Edge(
     v0: Int,
@@ -31,9 +112,21 @@ object Tesselation {
   case class Mesh(
     vertices: Vector[Vertex],
     faces: Vector[Face]
-  )
+  ) {
+
+
+  }
 
   def tesselate(
+    mesh: Mesh,
+    count: Int = 1
+  ) = {
+    (0 until count)
+      .foldLeft(mesh)({ (acc, _) => tesselateSingle(acc) })
+
+  }
+
+  def tesselateSingle(
     mesh: Mesh
   ) : Mesh = {
     import mesh._

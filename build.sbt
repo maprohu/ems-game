@@ -12,15 +12,14 @@ lazy val sjs = crossProject.in(file(".")).
     scalaVersion := "2.11.8",
     crossPaths := false
   ).
-  jvmSettings(
-  ).
   jsSettings(
     persistLauncher := true,
     libraryDependencies += "com.lihaoyi" %%% "scalatags" % "0.6.1",
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.0",
     libraryDependencies += "com.github.japgolly.scalacss" %%% "core" % "0.5.1",
     libraryDependencies += "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.5.1",
-    libraryDependencies += "com.lihaoyi" %%% "scalarx" % "0.3.2"
+    libraryDependencies += "com.lihaoyi" %%% "scalarx" % "0.3.2",
+    jsDependencies += ProvidedJS / "gl-matrix-min.js"
   )
 
 lazy val sjsJVM = sjs.jvm

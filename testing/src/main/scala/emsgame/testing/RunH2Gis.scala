@@ -10,21 +10,8 @@ import org.h2gis.ext.H2GISExtension
   * Created by pappmar on 02/02/2017.
   */
 object RunH2Gis {
+  import H2GisData._
 
-  val DBPath = "./local/h2gis/db"
-
-  val LandTable = "LAND"
-  val WaterTable = "WATER"
-  val GeomColumn = "the_geom"
-
-  def connect() = {
-    org.h2.Driver.load()
-    DriverManager.getConnection(
-      s"jdbc:h2:file:${DBPath}",
-      "sa",
-      "sa"
-    )
-  }
 
 
   def main(args: Array[String]): Unit = {
@@ -57,12 +44,35 @@ object RunH2Gis {
 
 
 object RunRecreateH2Gis {
+  import H2GisData._
+
   def main(args: Array[String]): Unit = {
     import ammonite.ops._
-    rm(Path(RunH2Gis.DBPath, pwd) / up)
+    rm(Path(DBPath, pwd) / up)
 
-    val conn = RunH2Gis.connect()
+    val conn = connect()
     H2GISExtension.load(conn)
     conn.close()
   }
+}
+
+object H2GisData {
+
+  val DBPath = "./local/h2gis/db"
+
+  val LandTable = "LAND"
+  val WaterTable = "WATER"
+  val GeomColumn = "the_geom"
+
+  def connect() = {
+    org.h2.Driver.load()
+    DriverManager.getConnection(
+      s"jdbc:h2:file:${DBPath}",
+      "sa",
+      "sa"
+    )
+  }
+
+
+
 }
