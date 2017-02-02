@@ -27,7 +27,14 @@ lazy val sjsJVM = sjs.jvm
 lazy val sjsJS = sjs.js
 
 lazy val testing = project
-  .dependsOn(sjsJS)
+  .dependsOn(sjsJS, server)
+  .settings(
+    scalaVersion := "2.11.8",
+    crossPaths := false
+  )
+
+lazy val server = project
+  .dependsOn(sjsJVM)
   .settings(
     scalaVersion := "2.11.8",
     crossPaths := false,
@@ -37,5 +44,9 @@ lazy val testing = project
     libraryDependencies += "com.typesafe.akka" % "akka-http-experimental_2.11" % "2.4.11.1",
     libraryDependencies += "org.geotools" % "gt-shapefile" % "16.1",
     libraryDependencies += "org.geotools" % "gt-geometry" % "16.1",
-    libraryDependencies += "org.geotools" % "gt-jts-wrapper" % "16.1"
+    libraryDependencies += "org.geotools" % "gt-jts-wrapper" % "16.1",
+    libraryDependencies += "org.orbisgis" % "h2gis-ext" % "1.3.0",
+    libraryDependencies += "com.h2database" % "h2" % "1.4.193",
+    libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.22",
+    libraryDependencies += "com.lihaoyi" % "ammonite-ops_2.11" % "0.8.2"
   )

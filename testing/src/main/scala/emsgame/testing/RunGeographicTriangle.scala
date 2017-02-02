@@ -52,8 +52,8 @@ object RunGeographicTriangle {
 
 
     val fs =
-      RunLandPolygons
-        .load
+      GeoData
+        .land
 
     val gd =
       fs
