@@ -104,18 +104,13 @@ class EmsWebglMesh(
           height
         )
 
-//        val pMatrix = Matrix4x4.forPerspective(
-//          Projection.FieldOfView,
-//          width.toFloat / height,
-//          Zooming.MinDistance.toFloat / 2,
-//          100f
-//        )
         val pMatrix = Matrix4x4.forPerspective(
           Projection.FieldOfView,
           width.toFloat / height,
           Zooming.MinDistance.toFloat / 2,
           100f
         )
+//        val pMatrix = Matrix4x4.identity
 
         pMatrix
           .updateBuffer(
@@ -237,6 +232,17 @@ class EmsWebglMesh(
     val vertexShader = gl.createShader(VERTEX_SHADER)
     gl.shaderSource(
       vertexShader,
+//      """
+//        |    attribute vec3 aVertexPosition;
+//        |    attribute vec4 aVertexColor;
+//        |
+//        |    uniform mat4 uMVMatrix;
+//        |    uniform mat4 uPMatrix;
+//        |
+//        |    void main(void) {
+//        |        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+//        |    }
+//      """.stripMargin
       """
         |    attribute vec3 aVertexPosition;
         |    attribute vec4 aVertexColor;
@@ -245,7 +251,7 @@ class EmsWebglMesh(
         |    uniform mat4 uPMatrix;
         |
         |    void main(void) {
-        |        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        |        gl_Position = uMVMatrix * vec4(aVertexPosition, 1.0);
         |    }
       """.stripMargin
     )
