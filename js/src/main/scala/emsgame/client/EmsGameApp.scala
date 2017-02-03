@@ -25,7 +25,7 @@ object EmsGameApp extends JSApp {
       canvas,
       Tesselation.tesselate(
         Icosahedron.mesh,
-        0
+        2
       )
     )
 
