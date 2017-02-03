@@ -8,6 +8,7 @@ import org.scalajs.dom.html.Canvas
   */
 object Zooming {
 
+
   val MinDistance = 0.01
   val MaxDistance = 3.0
   val ZoomFactor = 1.5

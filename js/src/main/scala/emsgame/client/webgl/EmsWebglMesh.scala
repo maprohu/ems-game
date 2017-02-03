@@ -69,7 +69,8 @@ class EmsWebglMesh(
               Vector3(0, 0, -(Globe.Radius + zoomDistance.now).toFloat)
             )
 
-        (mTrans * mRotX * mRotY)
+//        (mTrans * mRotX * mRotY)
+        (mRotX * mRotY)
           .updateBuffer(
             mvMatrixBuffer
           )
@@ -104,13 +105,21 @@ class EmsWebglMesh(
           height
         )
 
-        val pMatrix = Matrix4x4.forPerspective(
-          Projection.FieldOfView,
-          width.toFloat / height,
-          Zooming.MinDistance.toFloat / 2,
-          100f
-        )
-//        val pMatrix = Matrix4x4.identity
+        val pMatrix =
+          Matrix4x4.forScale(
+            Vector3(
+              1 / zoomDistance.now.toFloat,
+              1 / zoomDistance.now.toFloat * width / height,
+              0f
+            )
+          )
+//        val pMatrix = Matrix4x4.forPerspective(
+//          Projection.FieldOfView,
+//          width.toFloat / height,
+//          Zooming.MinDistance.toFloat / 2,
+//          100f
+//        )
+
 
         pMatrix
           .updateBuffer(
@@ -123,6 +132,7 @@ class EmsWebglMesh(
           mvMatrixTypedBuffer
         )
       },
+      zoomDistance,
       canvasSize
     )
 
@@ -251,7 +261,7 @@ class EmsWebglMesh(
         |    uniform mat4 uPMatrix;
         |
         |    void main(void) {
-        |        gl_Position = uMVMatrix * vec4(aVertexPosition, 1.0);
+        |        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         |    }
       """.stripMargin
     )
