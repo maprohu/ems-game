@@ -40,6 +40,8 @@ lazy val server = project
     resolvers += "javanet" at "http://download.java.net/maven/2",
     resolvers += "boundless" at "http://repo.boundlessgeo.com/main",
     resolvers += "osgeo" at "http://download.osgeo.org/webdav/geotools/",
+    resolvers += "neo4j" at "https://raw.github.com/neo4j-contrib/m2/master/releases",
+    resolvers += "geosolutions" at "http://maven.geo-solutions.it",
     libraryDependencies += "com.typesafe.akka" % "akka-http-experimental_2.11" % "2.4.11.1",
     libraryDependencies += "org.geotools" % "gt-shapefile" % "16.1",
     libraryDependencies += "org.geotools" % "gt-geometry" % "16.1",
@@ -47,5 +49,7 @@ lazy val server = project
     libraryDependencies += "org.orbisgis" % "h2gis-ext" % "1.3.0",
     libraryDependencies += "com.h2database" % "h2" % "1.4.193",
     libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.22",
-    libraryDependencies += "com.lihaoyi" % "ammonite-ops_2.11" % "0.8.2"
+    libraryDependencies += "com.lihaoyi" % "ammonite-ops_2.11" % "0.8.2",
+    libraryDependencies += "org.neo4j" % "neo4j" % "3.1.1",
+    libraryDependencies += "org.neo4j" % "neo4j-spatial" % "0.23-neo4j-3.0.4"
   )
